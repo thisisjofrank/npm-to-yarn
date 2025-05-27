@@ -14,11 +14,12 @@ import { parse } from './command'
  * npm run start → deno run start
  * npx cowsay hello → deno run --allow-all npm:cowsay hello
  */
-function convertCacheArgs(args: string[]) {
+function convertCacheArgs(args: string[], forInstall = false) {
   return args.map(item => {
     switch (item) {
       case '--save-dev':
       case '-D':
+        return forInstall ? '--dev' : ''
       case '--save-prod':
       case '-P':
       case '--save-optional':
@@ -32,7 +33,8 @@ function convertCacheArgs(args: string[]) {
         return ''
       case '--global':
       case '-g':
-        return ''
+        // Keep --global flag for install command
+        return forInstall ? '--global' : ''
       default:
         return item
     }
@@ -58,7 +60,7 @@ export function npmToDeno(_m: string, command: string): string {
       } else {
         // npm install package -> deno install npm:package
         args[0] = 'install'
-        args = convertCacheArgs(args)
+        args = convertCacheArgs(args, true) // Pass true to preserve --dev flag
 
         // Get package names (without flags)
         const packages = args.filter((arg, index) => index > 0 && !arg.startsWith('-'))
@@ -88,6 +90,14 @@ export function npmToDeno(_m: string, command: string): string {
       const packagesToUninstall = args.filter((arg, index) => index > 0 && !arg.startsWith('-'))
 
       if (packagesToUninstall.length > 0) {
+        // Replace package names with npm: prefixed versions
+        args = args.map(arg => {
+          if (packagesToUninstall.includes(arg)) {
+            return `npm:${arg}`
+          }
+          return arg
+        })
+
         converted = 'deno ' + args.filter(Boolean).join(' ')
       } else {
         converted = "deno uninstall # Please specify packages to uninstall"
@@ -111,14 +121,12 @@ export function npmToDeno(_m: string, command: string): string {
       break
 
     case 'create':
-      // npm create react-app my-app -> deno run npm:create-react-app my-app
+      // npm create react-app my-app -> deno init --npm react-app my-app
       args.shift(); // Remove 'create'
       if (args.length > 0) {
-        const packageName = args[0];
-        args[0] = `npm:create-${packageName}`;
-        converted = 'deno run ' + args.filter(Boolean).join(' ');
+        converted = 'deno init --npm ' + args.join(' ');
       } else {
-        converted = "deno run # Please specify a create package";
+        converted = "deno init --npm # Please specify a template";
       }
       break;
 
@@ -133,17 +141,16 @@ export function npmToDeno(_m: string, command: string): string {
       break
 
     case 'exec':
-      // npm exec package -> deno run npm:package
+      // npm exec package -> deno run --allow-scripts npm:package
       args.shift()
       if (args.length > 0) {
         const packageName = args[0]
         args[0] = `npm:${packageName}`
-        // Modern Deno versions have improved permissions and don't always need --allow-all
-        converted = 'deno run ' + args.filter(Boolean).join(' ')
+        converted = 'deno run -A --allow-scripts ' + args.filter(Boolean).join(' ')
       } else {
-        converted = 'deno run'
+        converted = 'deno run -A --allow-scripts'
       }
-      break
+      break;
 
     case 'start':
       converted = 'deno run start'
@@ -152,7 +159,7 @@ export function npmToDeno(_m: string, command: string): string {
     case 'cache':
       args[0] = 'cache'
       if (args[1] === 'clean') {
-        converted = 'deno cache --reload'
+        converted = 'deno clean'
       } else {
         converted = 'deno cache'
       }
