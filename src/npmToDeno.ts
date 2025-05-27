@@ -9,9 +9,9 @@ import { parse } from './command'
  * - No separate install/uninstall concept; imports are fetched on demand
  *
  * Examples:
- * npm install express → deno cache npm:express
+ * npm install express → deno install npm:express
  * npm run test → deno test
- * npm run start → deno run main.ts
+ * npm run start → deno run start
  * npx cowsay hello → deno run --allow-all npm:cowsay hello
  */
 function convertCacheArgs(args: string[]) {
@@ -53,11 +53,11 @@ export function npmToDeno(_m: string, command: string): string {
     case 'install':
     case 'i':
       if (args.length === 1) {
-        // npm install -> deno cache npm:
-        converted = 'deno cache --reload npm:'
+        // npm install -> deno install
+        converted = 'deno install'
       } else {
-        // npm install package -> deno cache npm:package
-        args[0] = 'cache'
+        // npm install package -> deno install npm:package
+        args[0] = 'install'
         args = convertCacheArgs(args)
 
         // Get package names (without flags)
@@ -81,7 +81,17 @@ export function npmToDeno(_m: string, command: string): string {
     case 'remove':
     case 'r':
     case 'rm':
-      converted = "# Deno doesn't have package uninstall, remove imports from your code instead"
+      args[0] = 'uninstall'
+      args = convertCacheArgs(args)
+
+      // Get package names (without flags)
+      const packagesToUninstall = args.filter((arg, index) => index > 0 && !arg.startsWith('-'))
+
+      if (packagesToUninstall.length > 0) {
+        converted = 'deno ' + args.filter(Boolean).join(' ')
+      } else {
+        converted = "deno uninstall # Please specify packages to uninstall"
+      }
       break
 
     case 'run':
@@ -111,33 +121,47 @@ export function npmToDeno(_m: string, command: string): string {
       break
 
     case 'exec':
-      // npm exec package -> deno run --allow-all npm:package
+      // npm exec package -> deno run npm:package
       args.shift()
       if (args.length > 0) {
         const packageName = args[0]
         args[0] = `npm:${packageName}`
-        converted = 'deno run --allow-all ' + args.filter(Boolean).join(' ')
+        // Modern Deno versions have improved permissions and don't always need --allow-all
+        converted = 'deno run ' + args.filter(Boolean).join(' ')
       } else {
-        converted = 'deno run --allow-all'
+        converted = 'deno run'
       }
       break
 
     case 'start':
-      converted = 'deno run main.ts'
+      // Deno now uses deno task start as the recommended approach
+      converted = 'deno task start'
       break
 
     case 'cache':
       args[0] = 'cache'
       if (args[1] === 'clean') {
+        // Newer Deno versions support explicit cache management
         converted = 'deno cache --reload'
       } else {
         converted = 'deno cache'
       }
       break
 
+    case 'update':
+    case 'upgrade':
+      // Modern Deno uses 'deno upgrade' for self-updating
+      converted = 'deno upgrade'
+      break
+
+    case 'outdated':
+      // Deno doesn't have a direct equivalent for outdated packages
+      converted = "# Deno doesn't have a direct 'outdated' command, consider checking JSR or npm registry manually"
+      break
+
     default:
-      // For commands that don't map directly, provide a comment
-      converted = `npm ${command}\n# Deno's package management differs from npm, see https://deno.land/manual@v1.36.1/node/npm_specifiers for more info`
+      // For commands that don't map directly, provide a comment with updated docs URL
+      converted = `npm ${command}\n# Deno's package management differs from npm, see https://docs.deno.com/runtime/manual/node/npm_specifiers for more info`
   }
 
   return converted
