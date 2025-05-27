@@ -111,7 +111,7 @@ export function npmToDeno(_m: string, command: string): string {
         if (scriptName === 'start') {
           converted = 'deno run start'
         } else if (scriptName === 'test') {
-          converted = 'deno test'
+          converted = 'deno task test'
         } else {
           converted = `deno run ${scriptName}`
         }
