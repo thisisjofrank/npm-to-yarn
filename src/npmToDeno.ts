@@ -99,14 +99,14 @@ export function npmToDeno(_m: string, command: string): string {
       if (args.length > 1) {
         const scriptName = args[1]
         if (scriptName === 'start') {
-          converted = 'deno run main.ts'
+          converted = 'deno run start'
         } else if (scriptName === 'test') {
           converted = 'deno test'
         } else {
-          converted = `deno task ${scriptName}`
+          converted = `deno run ${scriptName}`
         }
       } else {
-        converted = 'deno task'
+        converted = 'deno run'
       }
       break
 
@@ -134,14 +134,12 @@ export function npmToDeno(_m: string, command: string): string {
       break
 
     case 'start':
-      // Deno now uses deno task start as the recommended approach
-      converted = 'deno task start'
+      converted = 'deno run start'
       break
 
     case 'cache':
       args[0] = 'cache'
       if (args[1] === 'clean') {
-        // Newer Deno versions support explicit cache management
         converted = 'deno cache --reload'
       } else {
         converted = 'deno cache'
@@ -150,18 +148,16 @@ export function npmToDeno(_m: string, command: string): string {
 
     case 'update':
     case 'upgrade':
-      // Modern Deno uses 'deno upgrade' for self-updating
       converted = 'deno upgrade'
       break
 
     case 'outdated':
-      // Deno doesn't have a direct equivalent for outdated packages
-      converted = "# Deno doesn't have a direct 'outdated' command, consider checking JSR or npm registry manually"
+      converted = "deno outdated"
       break
 
     default:
       // For commands that don't map directly, provide a comment with updated docs URL
-      converted = `npm ${command}\n# Deno's package management differs from npm, see https://docs.deno.com/runtime/manual/node/npm_specifiers for more info`
+      converted = `npm ${command}\n# Deno's package management differs from npm, see https://docs.deno.com/runtime/fundamentals/node/#node-to-deno-cheatsheet for more info`
   }
 
   return converted
