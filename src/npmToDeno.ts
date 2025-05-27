@@ -110,6 +110,18 @@ export function npmToDeno(_m: string, command: string): string {
       }
       break
 
+    case 'create':
+      // npm create react-app my-app -> deno run npm:create-react-app my-app
+      args.shift(); // Remove 'create'
+      if (args.length > 0) {
+        const packageName = args[0];
+        args[0] = `npm:create-${packageName}`;
+        converted = 'deno run ' + args.filter(Boolean).join(' ');
+      } else {
+        converted = "deno run # Please specify a create package";
+      }
+      break;
+
     case 'test':
     case 't':
     case 'tst':
