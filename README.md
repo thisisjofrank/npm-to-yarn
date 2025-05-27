@@ -47,7 +47,7 @@ convert('npx create-next-app', 'yarn')
 /**
  * Converts between npm and yarn command
  */
-export default function convert (str: string, to: 'npm' | 'yarn' | 'pnpm' | 'bun'): string
+export default function convert (str: string, to: 'npm' | 'yarn' | 'pnpm' | 'bun' | 'deno'): string
 ```
 
 ## ✔️ Tests
@@ -102,3 +102,24 @@ Made with ❤ by [@nebrelbug](https://github.com/nebrelbug) and all these wonder
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification. Contributions of any kind are welcome!
+
+## Features
+
+- Convert between npm, Yarn, pnpm, Bun, and Deno commands
+- Handles complex command arguments and flags
+- Works in browser and Node.js environments
+
+## Usage
+
+```js
+import convert from 'npm-to-yarn'
+
+// Convert npm commands to other package managers
+convert('npm install react', 'yarn')  // 'yarn add react'
+convert('npm install react', 'pnpm')  // 'pnpm install react'
+convert('npm install react', 'bun')   // 'bun add react'
+convert('npm install react', 'deno')  // 'deno cache npm:react'
+
+// Convert yarn commands to npm
+convert('yarn add react', 'npm')      // 'npm install react'
+```

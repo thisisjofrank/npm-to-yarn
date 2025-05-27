@@ -3,9 +3,13 @@
   "version": "3.0.1",
   "description": "Convert npm CLI commands to Yarn commands, and vice versa",
   "keywords": [
-    "string convert",
-    "documentation",
-    "yarn to npm"
+    "npm",
+    "yarn",
+    "pnpm",
+    "bun",
+    "deno",
+    "convert",
+    "cli"
   ],
   "main": "dist/npm-to-yarn.umd.js",
   "module": "dist/npm-to-yarn.mjs",
