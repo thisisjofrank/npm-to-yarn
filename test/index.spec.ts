@@ -262,14 +262,14 @@ describe('NPM tests', () => {
       'yarn create react-app ./my-react-app',
       'pnpm create react-app ./my-react-app',
       'bunx create-react-app ./my-react-app',
-      'deno npm:create react-app ./my-react-app',
+      'deno npm:create-react-app ./my-react-app',
     ],
     [
       'npm create vite@latest',
       'yarn create vite',
       'pnpm create vite',
       'bunx create-vite',
-      'deno npm:create vite',
+      'deno npm:create-vite',
     ],
     // list
     ['npm list', 'yarn list', 'pnpm list', 'bun pm ls', 'deno list'],
