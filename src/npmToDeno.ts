@@ -133,7 +133,7 @@ export function npmToDeno(_m: string, command: string): string {
     case 'test':
     case 't':
     case 'tst':
-      converted = 'deno test'
+      converted = 'deno task test'
       break
 
     case 'init':
