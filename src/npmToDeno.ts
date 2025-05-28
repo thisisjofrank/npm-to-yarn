@@ -10,7 +10,7 @@ import { parse } from './command'
  *
  * Examples:
  * npm install express → deno install npm:express
- * npm run test → deno test
+* npm run test → deno task test
  * npm run start → deno run start
  * npx cowsay hello → deno run --allow-all npm:cowsay hello
  */
