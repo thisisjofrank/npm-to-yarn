@@ -30,7 +30,6 @@ function convertCacheArgs(args: string[], forInstall = false) {
         return ''
       case '--no-package-lock':
         return ''
-      case '--global':
       case '-g':
         // Keep --global flag for install command
         return forInstall ? '--global' : ''
