@@ -18,7 +18,6 @@ function convertCacheArgs(args: string[], forInstall = false) {
   return args.map(item => {
     switch (item) {
       case '--save-dev':
-      case '-D':
         return forInstall ? '--dev' : ''
       case '--save-prod':
       case '-P':
